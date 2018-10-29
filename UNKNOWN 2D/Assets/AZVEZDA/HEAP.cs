@@ -10,7 +10,7 @@ public interface IHeapItem<T> : IComparer<T>
     }
 }
 
-public class HEAP<T> {
+/*public class HEAP<T> {
 
     T[] items;
     int currentItem;
@@ -74,4 +74,4 @@ public class HEAP<T> {
         b.HeapIndex = aIndex;
     }
 }
-
+*/
