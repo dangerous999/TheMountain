@@ -10,7 +10,7 @@ public class Enemypathfinding : MonoBehaviour {
     public Transform target;
     private Seeker seeker;
     public float UpdateTime;                    //nakon koliko se sekundi updejta put
-    private Rigidbody2D rd;
+    private Rigidbody2D rb2d;
 
     public Path path;                           //KALKULIRANI PUT
     public float speed=10f;                     //brzina po sekundi
@@ -23,7 +23,7 @@ public class Enemypathfinding : MonoBehaviour {
     private void Start()
     {
         seeker = GetComponent<Seeker>();
-        rd = GetComponent<Rigidbody2D>();
+        rb2d = GetComponent<Rigidbody2D>();
 
         seeker.StartPath(transform.position, target.position, OnPathComplete);      //novi put do targeta i vraca put u OnPathComplete funkciju
         //StartCoroutine(UpdatePath());
@@ -32,6 +32,7 @@ public class Enemypathfinding : MonoBehaviour {
     // Nalazi put od neprijatelja do playera
     IEnumerator UpdatePath()                    
     {
+        Debug.Log("Pozvan UpdatePath");
         if (target == null)
         {
             Debug.Log("nema targeta");
@@ -76,7 +77,7 @@ public class Enemypathfinding : MonoBehaviour {
             transform.up = (target.transform.position - transform.position).normalized;                 //gleda playera
             Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           //direkcija prema drugom waypointu
             dir *= speed * Time.fixedDeltaTime;
-            rd.AddForce(dir, FM);
+            rb2d.AddForce(dir, FM);
             float dis = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
             if (dis < nextWaypointDistance)
             {
