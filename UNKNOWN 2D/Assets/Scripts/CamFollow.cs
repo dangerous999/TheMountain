@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class CamFollow : MonoBehaviour {
     Vector3 offset;
-    GameObject player;
+   public GameObject player;
 
 	// Use this for initialization
 	void Start () {
-        player = GameObject.Find("Armor");
+        //player = GameObject.Find("Armor");
         offset = new Vector3(0, 0, -1);
 	}
 	

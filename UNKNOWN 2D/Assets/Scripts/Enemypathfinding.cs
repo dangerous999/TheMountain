@@ -9,34 +9,42 @@ public class Enemypathfinding : MonoBehaviour {
 
     public Transform target;
     private Seeker seeker;
-    public float UpdateTime;
+    public float UpdateTime;                    //nakon koliko se sekundi updejta put
     private Rigidbody2D rd;
 
-    public Path path;
-    public float speed=10f;
-    public ForceMode2D FM;
-    public bool PathEnded, see=false;
-    public float NextWaypoint = 3f;
-    private int CWaypoint=0;
+    public Path path;                           //KALKULIRANI PUT
+    public float speed=10f;                     //brzina po sekundi
+    public ForceMode2D FM;                      //promjena FORCE/INPULS
+    public bool PathEnded;                      //je li doso do kraja puta 
+    public bool see = false;                    //jel vidljiv player
+    public float nextWaypointDistance = 3f;     //udaljenost od waypointa na kojoj kreće na sljedeći waypoint
+    private int currentWaypoint = 0;            //waypoint na kojeg idemo trenutno
 
     private void Start()
     {
         seeker = GetComponent<Seeker>();
         rd = GetComponent<Rigidbody2D>();
 
-        seeker.StartPath(transform.position, target.position, OnPathComplete);
-        StartCoroutine(UpdatePath());
+        seeker.StartPath(transform.position, target.position, OnPathComplete);      //novi put do targeta i vraca put u OnPathComplete funkciju
+        //StartCoroutine(UpdatePath());
     }
-    IEnumerator UpdatePath()
+
+    // Nalazi put od neprijatelja do playera
+    IEnumerator UpdatePath()                    
     {
         if (target == null)
         {
             Debug.Log("nema targeta");
         }
-        seeker.StartPath(transform.position, target.position, OnPathComplete);
-        yield return new WaitForSeconds(1f / UpdateTime);
+        else
+        {
+            seeker.StartPath(transform.position, target.position, OnPathComplete);
+        }
+        //Debug.Log("NIG NIG");
+        
+        yield return new WaitForSeconds(UpdateTime);
 
-        StartCoroutine(UpdatePath());
+        //StartCoroutine(UpdatePath());
     }
 
     public void OnPathComplete(Path p)
@@ -44,7 +52,7 @@ public class Enemypathfinding : MonoBehaviour {
         if (!p.error)
         {
             path = p;
-            CWaypoint = 0;
+            currentWaypoint = 0;
         }
     }
 
@@ -54,7 +62,7 @@ public class Enemypathfinding : MonoBehaviour {
         {
             if (path == null)
                 return;
-            if (CWaypoint >= path.vectorPath.Count)
+            /* (currentWaypoint >= path.vectorPath.Count)       //ako je trenutni waypoint > broja waypointa
             {
                 if (PathEnded)
                     return;
@@ -63,15 +71,16 @@ public class Enemypathfinding : MonoBehaviour {
                 return;
 
             }
-            PathEnded = false;
-            transform.up = (target.transform.position - transform.position).normalized;
-            Vector3 dir = (path.vectorPath[CWaypoint] - transform.position).normalized;
+            PathEnded = false;*/
+
+            transform.up = (target.transform.position - transform.position).normalized;                 //gleda playera
+            Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           //direkcija prema drugom waypointu
             dir *= speed * Time.fixedDeltaTime;
             rd.AddForce(dir, FM);
-            float dis = Vector3.Distance(transform.position, path.vectorPath[CWaypoint]);
-            if (dis < NextWaypoint)
+            float dis = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
+            if (dis < nextWaypointDistance)
             {
-                CWaypoint++;
+                currentWaypoint++;
                 return;
             }
         }
@@ -96,6 +105,12 @@ public class Enemypathfinding : MonoBehaviour {
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        see = false;
+        
+        if (collision.CompareTag("Player"))
+        {
+            Debug.Log("Nigger 2");
+            StopCoroutine(UpdatePath());
+            see = false;
+        }
     }
 }
