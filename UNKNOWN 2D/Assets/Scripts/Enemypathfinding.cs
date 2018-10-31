@@ -25,27 +25,32 @@ public class Enemypathfinding : MonoBehaviour {
         seeker = GetComponent<Seeker>();
         rb2d = GetComponent<Rigidbody2D>();
 
-        seeker.StartPath(transform.position, target.position, OnPathComplete);      //novi put do targeta i vraca put u OnPathComplete funkciju
+        //seeker.StartPath(transform.position, target.position, OnPathComplete);      //novi put do targeta i vraca put u OnPathComplete funkciju
         //StartCoroutine(UpdatePath());
     }
 
     // Nalazi put od neprijatelja do playera
     IEnumerator UpdatePath()                    
     {
-        Debug.Log("Pozvan UpdatePath");
-        if (target == null)
+        while (see)
         {
-            Debug.Log("nema targeta");
-        }
-        else
-        {
-            seeker.StartPath(transform.position, target.position, OnPathComplete);
-        }
-        //Debug.Log("NIG NIG");
-        
-        yield return new WaitForSeconds(UpdateTime);
+            //Debug.Log("Pozvan UpdatePath");
+            if (target == null)
+            {
+                //Debug.Log("nema targeta");
+            }
+            else
+            {
+                seeker.StartPath(transform.position, target.position, OnPathComplete);
+            }
+            //Debug.Log("NIG NIG");
 
-        //StartCoroutine(UpdatePath());
+            yield return new WaitForSeconds(1f / UpdateTime);
+
+            // StartCoroutine(UpdatePath());
+        }
+        Debug.Log("NIGERINJOOOOOOOOOOOOOOOOOOO");
+
     }
 
     public void OnPathComplete(Path p)
@@ -76,7 +81,7 @@ public class Enemypathfinding : MonoBehaviour {
 
             transform.up = (target.transform.position - transform.position).normalized;                 //gleda playera
             Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           //direkcija prema drugom waypointu
-            dir *= speed * Time.fixedDeltaTime;
+            dir *= speed ;
             rb2d.AddForce(dir, FM);
             float dis = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
             if (dis < nextWaypointDistance)
@@ -93,7 +98,6 @@ public class Enemypathfinding : MonoBehaviour {
         if (collision.CompareTag("Player")){
             StartCoroutine(UpdatePath());
             see = true;
-
         }
     }
     private void OnTriggerStay2D(Collider2D collision)
@@ -101,7 +105,7 @@ public class Enemypathfinding : MonoBehaviour {
         if (collision.CompareTag("Player"))
         {
             see = true;
-            StartCoroutine(UpdatePath());
+            //StartCoroutine(UpdatePath());
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
