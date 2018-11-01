@@ -20,13 +20,11 @@ public class Enemypathfinding : MonoBehaviour {
     public bool hasPatrolRoute = true;
     public float nextWaypointDistance = 3f;     // udaljenost od waypointa na kojoj kreće na sljedeći waypoint
     private int currentWaypoint = 0;            // waypoint na kojeg idemo trenutno
-    private Patrolling patrollingScript;
 
     private void Start()
     {
         seeker = GetComponent<Seeker>();
         rb2d = GetComponent<Rigidbody2D>();
-        patrollingScript = GetComponent<Patrolling>();
         //seeker.StartPath(transform.position, target.position, OnPathComplete);      //novi put do targeta i vraca put u OnPathComplete funkciju
         //StartCoroutine(UpdatePath());
     }
@@ -34,8 +32,8 @@ public class Enemypathfinding : MonoBehaviour {
     // Nalazi put od neprijatelja do playera
     IEnumerator UpdatePath()                    
     {
-        while (see)
-        {
+        //while (see)
+        //{
             //Debug.Log("Pozvan UpdatePath");
             if (target == null)
             {
@@ -48,8 +46,8 @@ public class Enemypathfinding : MonoBehaviour {
             //Debug.Log("NIG NIG");
 
             yield return new WaitForSeconds(1f / UpdateTime);
-
-        }
+        
+        //}
     }
 
     public void OnPathComplete(Path p)
@@ -63,26 +61,28 @@ public class Enemypathfinding : MonoBehaviour {
 
     private void FixedUpdate()
     {
+        
+        StartCoroutine(UpdatePath());
         if (see)
         {
             if (path == null)
                 return;
             #region PathEndedShit
-            /* (currentWaypoint >= path.vectorPath.Count)       //ako je trenutni waypoint > broja waypointa
-            {
-                if (PathEnded)
-                    return;
-                Debug.Log("end of path");
-                PathEnded = true;
+        /* (currentWaypoint >= path.vectorPath.Count)       //ako je trenutni waypoint > broja waypointa
+        {
+            if (PathEnded)
                 return;
+            Debug.Log("end of path");
+            PathEnded = true;
+            return;
 
-            }
-            PathEnded = false;*/
-            #endregion
-
+        }
+        PathEnded = false;*/
+        #endregion
+            Debug.Log("NIGRS");
             transform.up = (target.transform.position - transform.position).normalized;                 // gleda playera
             Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
-            dir *= speed ;
+            dir *= speed;
             rb2d.AddForce(dir, FM);
             float dis = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
             if (dis < nextWaypointDistance)
@@ -90,10 +90,24 @@ public class Enemypathfinding : MonoBehaviour {
                 currentWaypoint++;
                 return;
             }
-        }//else if ()
-        //{
+        }
+        else
+        {
+            //StartCoroutine(UpdatePath());
+            if (path == null)
+                return;
+            transform.up = (target.transform.position - transform.position).normalized;                 // gleda playera
+            Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
+            dir *= speed;
+            rb2d.AddForce(dir, FM);
+            float dis = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
+            if (dis < nextWaypointDistance)
+            {
+                currentWaypoint++;
+                return;
+            }
 
-        //}
+        }
     }
     // za triggere
     private void OnTriggerEnter2D(Collider2D collision)
@@ -117,7 +131,7 @@ public class Enemypathfinding : MonoBehaviour {
         if (collision.CompareTag("Player"))
         {
             Debug.Log("Nigger 2");
-            StopCoroutine(UpdatePath());
+            //StopCoroutine(UpdatePath());
             see = false;
         }
     }
