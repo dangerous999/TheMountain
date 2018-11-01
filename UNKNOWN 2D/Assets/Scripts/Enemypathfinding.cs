@@ -12,19 +12,21 @@ public class Enemypathfinding : MonoBehaviour {
     public float UpdateTime;                    //nakon koliko se sekundi updejta put
     private Rigidbody2D rb2d;
 
-    public Path path;                           //KALKULIRANI PUT
-    public float speed=10f;                     //brzina po sekundi
-    public ForceMode2D FM;                      //promjena FORCE/INPULS
-    public bool PathEnded;                      //je li doso do kraja puta 
-    public bool see = false;                    //jel vidljiv player
-    public float nextWaypointDistance = 3f;     //udaljenost od waypointa na kojoj kreće na sljedeći waypoint
-    private int currentWaypoint = 0;            //waypoint na kojeg idemo trenutno
+    public Path path;                           // KALKULIRANI PUT
+    public float speed=10f;                     // brzina po sekundi
+    public ForceMode2D FM;                      // promjena FORCE/INPULS
+    public bool PathEnded;                      // je li doso do kraja puta 
+    public bool see = false;                    // jel vidljiv player
+    public bool hasPatrolRoute = true;
+    public float nextWaypointDistance = 3f;     // udaljenost od waypointa na kojoj kreće na sljedeći waypoint
+    private int currentWaypoint = 0;            // waypoint na kojeg idemo trenutno
+    private Patrolling patrollingScript;
 
     private void Start()
     {
         seeker = GetComponent<Seeker>();
         rb2d = GetComponent<Rigidbody2D>();
-
+        patrollingScript = GetComponent<Patrolling>();
         //seeker.StartPath(transform.position, target.position, OnPathComplete);      //novi put do targeta i vraca put u OnPathComplete funkciju
         //StartCoroutine(UpdatePath());
     }
@@ -47,10 +49,7 @@ public class Enemypathfinding : MonoBehaviour {
 
             yield return new WaitForSeconds(1f / UpdateTime);
 
-            // StartCoroutine(UpdatePath());
         }
-        Debug.Log("NIGERINJOOOOOOOOOOOOOOOOOOO");
-
     }
 
     public void OnPathComplete(Path p)
@@ -68,6 +67,7 @@ public class Enemypathfinding : MonoBehaviour {
         {
             if (path == null)
                 return;
+            #region PathEndedShit
             /* (currentWaypoint >= path.vectorPath.Count)       //ako je trenutni waypoint > broja waypointa
             {
                 if (PathEnded)
@@ -78,9 +78,10 @@ public class Enemypathfinding : MonoBehaviour {
 
             }
             PathEnded = false;*/
+            #endregion
 
-            transform.up = (target.transform.position - transform.position).normalized;                 //gleda playera
-            Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           //direkcija prema drugom waypointu
+            transform.up = (target.transform.position - transform.position).normalized;                 // gleda playera
+            Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
             dir *= speed ;
             rb2d.AddForce(dir, FM);
             float dis = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
@@ -89,10 +90,12 @@ public class Enemypathfinding : MonoBehaviour {
                 currentWaypoint++;
                 return;
             }
-        }
+        }//else if ()
+        //{
+
+        //}
     }
     // za triggere
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player")){
