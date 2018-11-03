@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 
-[RequireComponent (typeof (Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Seeker))]
-public class Enemypathfinding : MonoBehaviour {
+public class EnemypathfindingRadi : MonoBehaviour
+{
 
     public Transform target;
     private Seeker seeker;
@@ -13,18 +14,13 @@ public class Enemypathfinding : MonoBehaviour {
     private Rigidbody2D rb2d;
 
     public Path path;                           // KALKULIRANI PUT
-    public float speed=10f;                     // brzina po sekundi
+    public float speed = 10f;                     // brzina po sekundi
     public ForceMode2D FM;                      // promjena FORCE/INPULS
     public bool PathEnded;                      // je li doso do kraja puta 
     public bool see = false;                    // jel vidljiv player
     public bool hasPatrolRoute = true;
     public float nextWaypointDistance = 3f;     // udaljenost od waypointa na kojoj kreće na sljedeći waypoint
     private int currentWaypoint = 0;            // waypoint na kojeg idemo trenutno
-    public bool stopAndRotate= true;
-    public bool stopRotating = false;
-    public bool move = false;
-    private float angle3;
-
 
     //patroliranje
     public GameObject[] waypoints;
@@ -36,30 +32,29 @@ public class Enemypathfinding : MonoBehaviour {
     {
         seeker = GetComponent<Seeker>();
         rb2d = GetComponent<Rigidbody2D>();
-        angle3 = 0f;
         //seeker.StartPath(transform.position, target.position, OnPathComplete);      //novi put do targeta i vraca put u OnPathComplete funkciju
         //StartCoroutine(UpdatePath());
     }
 
     // Nalazi put od neprijatelja do playera
-    IEnumerator UpdatePath()                    
+    IEnumerator UpdatePath()
     {
-        while (see)
+        //while (see)
+        //{
+        //Debug.Log("Pozvan UpdatePath");
+        if (target == null)
         {
-            //Debug.Log("Pozvan UpdatePath");
-            if (target == null)
-            {
-                //Debug.Log("nema targeta");
-            }
-            else
-            {
-                seeker.StartPath(transform.position, target.position, OnPathComplete);
-            }
-            //Debug.Log("NIG NIG");
-
-            yield return new WaitForSeconds(1f / UpdateTime);
-        
+            //Debug.Log("nema targeta");
         }
+        else
+        {
+            seeker.StartPath(transform.position, target.position, OnPathComplete);
+        }
+        //Debug.Log("NIG NIG");
+
+        yield return new WaitForSeconds(1f / UpdateTime);
+
+        //}
     }
 
     IEnumerator UpdateWaypointPath()
@@ -76,22 +71,13 @@ public class Enemypathfinding : MonoBehaviour {
                 seeker.StartPath(transform.position, target.position, OnPathComplete);
             }
             //Debug.Log("NIG NIG");
-            
+
             yield return new WaitForSeconds(2f / UpdateTime);
 
         }
-        
-        
-    }
 
-    IEnumerator PatrolWaypointPath()            //trazi put za patroliranje samo jednom bi se trebalo provest za 1 patroling put
-    {
-        seeker.StartPath(transform.position, target.position, OnPathComplete);
-        Debug.Log("Patrol Nigger");
-        yield return new WaitForSeconds(2f / UpdateTime);
-        StopCoroutine(PatrolWaypointPath());
-    }
 
+    }
 
     public void OnPathComplete(Path p)
     {
@@ -104,25 +90,24 @@ public class Enemypathfinding : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        
-        
+
+        StartCoroutine(UpdatePath());
         if (see)
         {
-            
             if (path == null)
                 return;
             #region PathEndedShit
-        /* (currentWaypoint >= path.vectorPath.Count)       //ako je trenutni waypoint > broja waypointa
-        {
-            if (PathEnded)
+            /* (currentWaypoint >= path.vectorPath.Count)       //ako je trenutni waypoint > broja waypointa
+            {
+                if (PathEnded)
+                    return;
+                Debug.Log("end of path");
+                PathEnded = true;
                 return;
-            Debug.Log("end of path");
-            PathEnded = true;
-            return;
 
-        }
-        PathEnded = false;*/
-        #endregion
+            }
+            PathEnded = false;*/
+            #endregion
             Debug.Log("NIGRS");
             transform.up = (target.transform.position - transform.position).normalized;                 // gleda playera
             Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
@@ -136,47 +121,28 @@ public class Enemypathfinding : MonoBehaviour {
             }
 
             PathEnded = false;
+
+
+
         }
         else
         {
-
-            //dio za pratroliranje
-            float distance;
-            distance = Vector3.Distance(transform.position, waypoints[waypointCounter].transform.position);
-
-            //dodaje put do tocke patroliranja
             if (hasPatrolRoute)
             {
                 Debug.Log("napravljeno");
                 target = waypoints[waypointCounter].transform;
-                StartCoroutine(PatrolWaypointPath());
+                StartCoroutine(UpdateWaypointPath());
                 hasPatrolRoute = false;
-                stopAndRotate = true;
-                move = false;
             }
 
-            
-            if (stopAndRotate)
-            {
-                Vector2 dis = (target.transform.position - transform.position).normalized;
-                float angle = (Mathf.Atan2(dis.y, dis.x) * Mathf.Rad2Deg) - 90f;                                        //kut do objekta (-90 JE DA y gleda prema objektu nepitaj me zasto)
-                Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);                                     //rotacija po z osi
-                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);    //sporo okretanje po z osi
-                float angle2 = transform.rotation.z*Mathf.Rad2Deg;
-                
 
-                Debug.Log(angle2 + "     " + angle3);
-                if (angle2 == angle3)
-                {
-                    Debug.Log("Rotation nigger here to help (SMACKS THE FALSE BUTTON!!!)");
-                    stopAndRotate = false;
-                    move = true;
-                }
-                angle3 = angle2;
+            Vector2 dis = (target.transform.position - transform.position).normalized;
+            float angle = (Mathf.Atan2(dis.y, dis.x) * Mathf.Rad2Deg) - 90f;                                        //kut do objekta (-90 JE DA y gleda prema objektu nepitaj me zasto)
+            Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);                                     //rotacija po z osi
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);    //sporo okretanje po z osi
+            float distance = Vector3.Distance(transform.position, waypoints[waypointCounter].transform.position);
 
-            }
-
-            //Debug.Log(distance);
+            Debug.Log(distance);
             if (distance < nextWaypointDistance)
             {
                 Debug.Log("Nigger");
@@ -185,28 +151,28 @@ public class Enemypathfinding : MonoBehaviour {
                 if (waypointCounter == waypoints.Length)
                 {
                     waypointCounter = 0;
-                    
                 }
             }
             // pomicanje
-            if (move)
+
+            Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
+            dir *= speed;
+            rb2d.AddForce(dir, FM);
+            float dis2 = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
+            if (dis2 < nextWaypointDistance)
             {
-                Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
-                dir *= speed;
-                rb2d.AddForce(dir, FM);
-                float dis2 = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
-                if (dis2 < nextWaypointDistance)
-                {
-                    currentWaypoint++;
-                    return;
-                }
+                currentWaypoint++;
+                return;
             }
+
+
         }
     }
     // za triggere
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player")){
+        if (collision.CompareTag("Player"))
+        {
             target = GameObject.FindGameObjectWithTag("Player").transform;
             StartCoroutine(UpdatePath());
             see = true;
@@ -223,13 +189,13 @@ public class Enemypathfinding : MonoBehaviour {
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        
+
         if (collision.CompareTag("Player"))
         {
             Debug.Log("Nigger 2");
             //StopCoroutine(UpdatePath());
             see = false;
-            target= waypoints[waypointCounter].transform;
+            target = waypoints[waypointCounter].transform;
             hasPatrolRoute = true;
         }
     }
