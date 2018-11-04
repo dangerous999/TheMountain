@@ -79,18 +79,7 @@ public class Enemypathfinding : MonoBehaviour {
         {
             if (path == null)
                 return;
-            #region PathEndedShit
-            /* (currentWaypoint >= path.vectorPath.Count)       //ako je trenutni waypoint > broja waypointa
-            {
-                if (PathEnded)
-                    return;
-                Debug.Log("end of path");
-                PathEnded = true;
-                return;
-
-            }
-            PathEnded = false;*/
-            #endregion
+            
             Debug.Log("NIGRS");
             transform.up = (target.transform.position - transform.position).normalized;                 // gleda playera
             Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
@@ -105,7 +94,6 @@ public class Enemypathfinding : MonoBehaviour {
         }
         else 
         {
-
             //////////////////////////////////////dio za patroliranje
             float distance;
             distance = Vector3.Distance(transform.position, waypoints[waypointCounter].transform.position);
@@ -118,28 +106,6 @@ public class Enemypathfinding : MonoBehaviour {
                 StartCoroutine(PatrolWaypointPath());
                 hasPatrolRoute = false;
             }
-            #region StopAndRotate
-            //move = true;
-            /*if (stopAndRotate)
-            {
-                Vector2 dis = (target.transform.position - transform.position).normalized;
-                float angle = (Mathf.Atan2(dis.y, dis.x) * Mathf.Rad2Deg) - 90f;                                        //kut do objekta (-90 JE DA y gleda prema objektu nepitaj me zasto)
-                Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);                                     //rotacija po z osi
-                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);    //sporo okretanje po z osi
-                move = true;
-                /*float angle2 = transform.rotation.z * Mathf.Rad2Deg;
-                Debug.Log(angle2 + "     " + angle3);
-                if (angle2 == angle3)
-                {
-                    Debug.Log("Rotation nigger here to help (SMACKS THE FALSE BUTTON!!!)");
-                    stopAndRotate = false;
-                    move = true;
-                }
-                angle3 = angle2;
-                */
-            //} 
-            #endregion
-
             //Debug.Log(distance);
             if (distance < nextWaypointDistance)
             {
@@ -197,8 +163,7 @@ public class Enemypathfinding : MonoBehaviour {
             //StopCoroutine(UpdatePath());
             see = false;
             hasPatrolRoute = true;
-            target = waypoints[waypointCounter].transform;
-            
+            target = waypoints[waypointCounter].transform;            
         }
     }
 }
