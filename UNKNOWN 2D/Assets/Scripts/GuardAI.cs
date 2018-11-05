@@ -202,4 +202,5 @@ public class GuardAI : MonoBehaviour {
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);    //sporo okretanje po z osi
     }
 
+
 }

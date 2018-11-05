@@ -7,33 +7,38 @@ using Pathfinding;
 [RequireComponent(typeof(Seeker))]
 public class Enemypathfinding : MonoBehaviour {
 
-    public Transform target;
-    public Transform originalPosition;
+    #region PRIVATE
     private Seeker seeker;
-    public float UpdateTime;                    //nakon koliko se sekundi updejta put
     private Rigidbody2D rb2d;
+    private int currentWaypoint = 0;            // index of currentWaypoint
+    private bool noPath = true;                 // true if no current path present
+    #endregion
 
-    public Path path;                           // KALKULIRANI PUT
-    public float speed=10f;                     // brzina po sekundi
-    public ForceMode2D FM;                      // promjena FORCE/INPULS
-    public bool see = false;                    // jel vidljiv player
-    public bool hasPatrolRoute = true;
-    public float nextWaypointDistance = 3f;     // udaljenost od waypointa na kojoj kreće na sljedeći waypoint
-    private int currentWaypoint = 0;            // waypoint na kojeg idemo trenutno
+    #region PUBLIC
+    public Transform target;                    // We will move towards this point
+    public Path path;                           // Calculated path
+    public GameObject[] waypoints;              // List with patrol points
 
-    //patroliranje
-    public GameObject[] waypoints;
-    int waypointCounter = 0;
-    public float rotationSpeed = 20f;
+    int waypointCounter = 0;                    // patrol point index within waypoints[]
+
+    public float updateTime;                    // how many path updates per second do we want
+    public float speed = 10f;                   // 
+    public float nextWaypointDistance = 3f;     // how precise we want to be, the lower the value the closer we will get to the actual point
+    public float rotationSpeed = 20f;           //
+    public float angleModifier = -90f;          // ¯\_(ツ)_/¯
+
+    public bool see = false;                    // whether or not the player is in range
+
+    public ForceMode2D FM;                      // modes can be FORCE or IMPULSE
+    #endregion
 
     private void Start()
     {
         seeker = GetComponent<Seeker>();
         rb2d = GetComponent<Rigidbody2D>();
-        originalPosition = this.transform; // TO DO Guard
     }
 
-    // Nalazi put od neprijatelja do playera
+    // Find path from me to player, shouldn't be used too many times a second, limited by updateTime
     IEnumerator UpdatePath()                    
     {
         while (see)
@@ -49,20 +54,19 @@ public class Enemypathfinding : MonoBehaviour {
             }
             //Debug.Log("NIG NIG");
 
-            yield return new WaitForSeconds(1f / UpdateTime);
+            yield return new WaitForSeconds(1f / updateTime);
         
         }
     }
-
-    // Nalazi put do sljedećeg patrol pointa
-    IEnumerator PatrolWaypointPath()            //trazi put za patroliranje samo jednom bi se trebalo provest za 1 patroling put
+    // Find path to next waypoint, should only be called once per waypoint
+    IEnumerator PatrolWaypointPath()          
     {
         seeker.StartPath(transform.position, target.position, OnPathComplete);
         Debug.Log("Patrol Nigger");
-        yield return new WaitForSeconds(2f / UpdateTime);
+        yield return new WaitForSeconds(2f / updateTime);
         StopCoroutine(PatrolWaypointPath());
     }
-
+    // No fucking clue sokol exblain this shit
     public void OnPathComplete(Path p)
     {
         if (!p.error)
@@ -74,70 +78,55 @@ public class Enemypathfinding : MonoBehaviour {
 
     private void FixedUpdate()
     {
-                            //////////////////////////////////////ako vidi neprijatelja krece prema njemu
-        if (see)
+        if (see) // Move towards the player if you can see him
         {
+            #region ISeeThePlayer
             if (path == null)
                 return;
-            
-            Debug.Log("NIGRS");
-            transform.up = (target.transform.position - transform.position).normalized;                 // gleda playera
-            Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
-            dir *= speed;
-            rb2d.AddForce(dir, FM);
-            float dis = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
-            if (dis < nextWaypointDistance)
+
+            transform.up = (target.transform.position - transform.position).normalized;  // Ovo je zapravo rotacija
+            MoveTowardsTarget(path.vectorPath[currentWaypoint]);
+
+            if (ReachedWaypoint(path.vectorPath[currentWaypoint], nextWaypointDistance))
             {
                 currentWaypoint++;
                 return;
             }
+            #endregion
         }
-        else 
+        else // can't see the player -> go back to patrolling
         {
-            //////////////////////////////////////dio za patroliranje
-            float distance;
-            distance = Vector3.Distance(transform.position, waypoints[waypointCounter].transform.position);
-
-            //dodaje put do tocke patroliranja
-            if (hasPatrolRoute)
+            #region ICantSeeThePlayer
+            if (noPath) // Only need to calculate path to next patrol point once
             {
                 Debug.Log("napravljeno");
                 target = waypoints[waypointCounter].transform;
                 StartCoroutine(PatrolWaypointPath());
-                hasPatrolRoute = false;
+                noPath = false;
             }
-            //Debug.Log(distance);
-            if (distance < nextWaypointDistance)
+            
+            if (ReachedWaypoint(waypoints[waypointCounter].transform.position, nextWaypointDistance)) // If you reached patrolpoint increment waypointCounter to next waypoint
             {
-                Debug.Log("Nigger");
                 waypointCounter++;
-                hasPatrolRoute = true;
+                noPath = true;
                 if (waypointCounter == waypoints.Length)
                 {
-                    waypointCounter = 0;
-                    
+                    waypointCounter = 0;                  
                 }
             }
-            // pomicanje
-            
-            
-                Vector2 dis = (target.transform.position - transform.position).normalized;
-                float angle = (Mathf.Atan2(dis.y, dis.x) * Mathf.Rad2Deg) - 90f;                                        //kut do objekta (-90 JE DA y gleda prema objektu nepitaj me zasto)
-                Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);                                     //rotacija po z osi
-                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);    //sporo okretanje po z osi
-                Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;           // direkcija prema drugom waypointu
-                dir *= speed;
-                rb2d.AddForce(dir, FM);
-                float dis2 = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);         // Udaljenost do sljedećeg waypointa
-                if (dis2 < nextWaypointDistance)
-                {
-                    currentWaypoint++;
-                    return;
-                }
-            
+    
+            MoveTowardsTarget(path.vectorPath[currentWaypoint]);
+            RotateTowardsTarget2D(target.transform, -90f, rotationSpeed);
+
+            if ( ReachedWaypoint(path.vectorPath[currentWaypoint], nextWaypointDistance)  )
+            {
+                currentWaypoint++;
+                return;
+            }
+            #endregion
         }
     }
-    // za triggere
+    // When player is inside the trigger he is our target and we can see him
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player")){
@@ -155,6 +144,7 @@ public class Enemypathfinding : MonoBehaviour {
             //StartCoroutine(UpdatePath());
         }
     }
+    // When player leaves we can't see him anymore
     private void OnTriggerExit2D(Collider2D collision)
     {      
         if (collision.CompareTag("Player"))
@@ -162,8 +152,52 @@ public class Enemypathfinding : MonoBehaviour {
             Debug.Log("Nigger 2");
             //StopCoroutine(UpdatePath());
             see = false;
-            hasPatrolRoute = true;
+            noPath = true;
             target = waypoints[waypointCounter].transform;            
         }
     }
+
+    /// <summary>
+    /// Calculates direction towards the target and adds force to RigidBody2D in that direction
+    /// </summary>
+    /// <param name="target"></param>
+    private void MoveTowardsTarget(Vector3 target)
+    {
+
+        Vector3 dir = (target - transform.position).normalized;           // direkcija prema drugom waypointu
+        dir *= speed;
+        rb2d.AddForce(dir, FM);
+    }
+    /// <summary>
+    /// Checks distance towards target and if it's smaller than the treshold return true else return false
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="distanceTreshold">How close we want to get to the target, smaller value -> closer</param>
+    /// <returns></returns>
+    private bool ReachedWaypoint(Vector3 target, float distanceTreshold)
+    {
+        float distanceToCurrentWaypoint = Vector3.Distance(transform.position, target);
+        if (distanceToCurrentWaypoint < distanceTreshold)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    /// <summary>
+    /// Rotates object towards target with a certain speed, angleModifier is there because ¯\_(ツ)_/¯
+    /// </summary>
+    /// <param name="target">Objekt prema kojemu se zelimo rotirati</param>
+    /// <param name="angleModifier">Kod nas je -90f jer tako mora bit</param>
+    /// <param name="rotationSpeed">rotation speed</param>
+    private void RotateTowardsTarget2D(Transform target, float angleModifier, float rotationSpeed)
+    {
+        Vector2 dis = (target.transform.position - transform.position).normalized; // Smjer prema originalPositionu
+        float angle = (Mathf.Atan2(dis.y, dis.x) * Mathf.Rad2Deg) + angleModifier;                                        //kut do objekta (-90 JE DA y gleda prema objektu nepitaj me zasto)
+        Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);                                     //rotacija po z osi
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);    //sporo okretanje po z osi
+    }
+
 }

@@ -252,7 +252,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 308449074}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5ba850051b044fa4d9c93b1e69e1f51b, type: 3}
   m_Name: 
@@ -270,7 +270,7 @@ MonoBehaviour:
   - {fileID: 778849858}
   - {fileID: 1517337377}
   - {fileID: 1221331231}
-  rotationSpeed: 100
+  rotationSpeed: 10
 --- !u!114 &308449076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -446,20 +446,21 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 308449074}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b881fcd14e425714e8c16f20b87bcf27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   originalPosition: {fileID: 1414177690}
-  UpdateTime: 2
+  updateTime: 2
   speed: 120
-  FM: 0
-  see: 0
   nextWaypointDistance: 0.5
-  isAtHome: 1
   rotationSpeed: 20
+  angleModifier: -90
+  see: 0
+  isAtHome: 1
+  FM: 0
 --- !u!1 &335259689
 GameObject:
   m_ObjectHideFlags: 0
