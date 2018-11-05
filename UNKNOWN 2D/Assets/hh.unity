@@ -210,7 +210,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &244358082
 Transform:
   m_ObjectHideFlags: 0
@@ -252,25 +252,24 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 308449074}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5ba850051b044fa4d9c93b1e69e1f51b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  originalPosition: {fileID: 0}
-  UpdateTime: 2
-  speed: 120
-  FM: 0
-  see: 0
-  hasPatrolRoute: 1
-  nextWaypointDistance: 1
   waypoints:
   - {fileID: 1339243387}
   - {fileID: 778849858}
   - {fileID: 1517337377}
   - {fileID: 1221331231}
+  updateTime: 2
+  speed: 120
+  nextWaypointDistance: 1
   rotationSpeed: 10
+  angleModifier: -90
+  see: 0
+  FM: 0
 --- !u!114 &308449076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -446,7 +445,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 308449074}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b881fcd14e425714e8c16f20b87bcf27, type: 3}
   m_Name: 
@@ -1375,7 +1374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfa75acede22d354eaa4310884b77191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.1
+  rotationSpeed: 5
 --- !u!212 &1178346288
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1533,6 +1532,7 @@ GameObject:
   - component: {fileID: 1448146748}
   - component: {fileID: 1448146747}
   - component: {fileID: 1448146746}
+  - component: {fileID: 1448146753}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -1657,7 +1657,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfa75acede22d354eaa4310884b77191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.1
+  rotationSpeed: 5
 --- !u!212 &1448146751
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1717,6 +1717,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1448146753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1448146745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98168f456b7abde41a24af3cbb09f791, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  bullet: {fileID: 1099485855996510, guid: 24ba270daa542f6409158597e3fff86b, type: 2}
+  timer: 0
+  shootInterval: 0.5
 --- !u!1 &1461917936
 GameObject:
   m_ObjectHideFlags: 0
@@ -2289,7 +2304,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2c9ad56d86258a4a888984a9572a2f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0, z: 0}
   player: {fileID: 1448146745}
+  moveAmount: 3
+  smoothTimeY: 0.1
+  smoothTimeX: 0.1
+  camWay1: 1
 --- !u!1 &1648665608
 GameObject:
   m_ObjectHideFlags: 0
@@ -2549,7 +2569,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfa75acede22d354eaa4310884b77191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.1
+  rotationSpeed: 5
 --- !u!212 &1711840630
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2865,15 +2885,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  originalPosition: {fileID: 0}
-  UpdateTime: 2
-  speed: 200
-  FM: 0
-  see: 0
-  hasPatrolRoute: 1
-  nextWaypointDistance: 3
   waypoints: []
+  updateTime: 0
+  speed: 200
+  nextWaypointDistance: 3
   rotationSpeed: 20
+  angleModifier: -90
+  see: 0
+  FM: 0
 --- !u!1 &1862083756
 GameObject:
   m_ObjectHideFlags: 0
@@ -2912,7 +2931,7 @@ CircleCollider2D:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1862083756}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
