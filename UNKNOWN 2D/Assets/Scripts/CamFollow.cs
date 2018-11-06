@@ -34,8 +34,8 @@ public class CamFollow : MonoBehaviour {
         //Vector2 mPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y).;
 
         Vector2 direction = ((mPos - (Vector2)transform.position) * 0.5f);
-        Debug.Log("direction       " + direction);
-        Debug.Log("Mouse position       " + mPos);
+        //Debug.Log("direction       " + direction);
+        //Debug.Log("Mouse position       " + mPos);
         if (camWay1)
         {
              posX = Mathf.SmoothDamp(transform.position.x, player.transform.position.x + direction.x, ref velocity.x, smoothTimeX);
