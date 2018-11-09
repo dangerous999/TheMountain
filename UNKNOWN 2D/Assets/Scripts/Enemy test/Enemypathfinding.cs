@@ -12,6 +12,7 @@ public class Enemypathfinding : MonoBehaviour {
     private Rigidbody2D rb2d;
     private int currentWaypoint = 0;            // index of currentWaypoint
     private bool noPath = true;                 // true if no current path present
+    
     #endregion
 
     #region PUBLIC
@@ -30,12 +31,15 @@ public class Enemypathfinding : MonoBehaviour {
     public bool see = false;                    // whether or not the player is in range
 
     public ForceMode2D FM;                      // modes can be FORCE or IMPULSE
+
+    public Animator anim;
     #endregion
 
     private void Start()
     {
         seeker = GetComponent<Seeker>();
         rb2d = GetComponent<Rigidbody2D>();
+        anim = GetComponentInChildren<Animator>();
     }
 
     // Find path from me to player, shouldn't be used too many times a second, limited by updateTime
@@ -62,7 +66,7 @@ public class Enemypathfinding : MonoBehaviour {
     IEnumerator PatrolWaypointPath()          
     {
         seeker.StartPath(transform.position, target.position, OnPathComplete);
-        Debug.Log("Patrol Nigger");
+        //Debug.Log("Patrol Nigger");
         yield return new WaitForSeconds(2f / updateTime);
         StopCoroutine(PatrolWaypointPath());
     }
@@ -99,7 +103,7 @@ public class Enemypathfinding : MonoBehaviour {
             #region ICantSeeThePlayer
             if (noPath) // Only need to calculate path to next patrol point once
             {
-                Debug.Log("napravljeno");
+                //Debug.Log("napravljeno");
                 target = waypoints[waypointCounter].transform;
                 StartCoroutine(PatrolWaypointPath());
                 noPath = false;
@@ -133,7 +137,7 @@ public class Enemypathfinding : MonoBehaviour {
             target = GameObject.FindGameObjectWithTag("Player").transform;
             StartCoroutine(UpdatePath());
             see = true;
-            
+            anim.SetBool("inRange", true);
         }
     }
     private void OnTriggerStay2D(Collider2D collision)
@@ -142,6 +146,7 @@ public class Enemypathfinding : MonoBehaviour {
         {
             see = true;
             //StartCoroutine(UpdatePath());
+            anim.SetBool("inRange", true);
         }
     }
     // When player leaves we can't see him anymore
@@ -149,13 +154,16 @@ public class Enemypathfinding : MonoBehaviour {
     {      
         if (collision.CompareTag("Player"))
         {
-            Debug.Log("Nigger 2");
+            //Debug.Log("Nigger 2");
             //StopCoroutine(UpdatePath());
             see = false;
             noPath = true;
-            target = waypoints[waypointCounter].transform;            
+            target = waypoints[waypointCounter].transform;
+            anim.SetBool("inRange", false);
         }
     }
+
+
 
     /// <summary>
     /// Calculates direction towards the target and adds force to RigidBody2D in that direction

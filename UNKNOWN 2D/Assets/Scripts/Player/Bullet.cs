@@ -7,6 +7,7 @@ public class Bullet : MonoBehaviour {
     public float bulletSpeed;
     public float lifeTime = 1.0f;
 
+
     private float timer;
 
 	// Use this for initialization
@@ -28,5 +29,5 @@ public class Bullet : MonoBehaviour {
         }
     }
 
-
+    
 }

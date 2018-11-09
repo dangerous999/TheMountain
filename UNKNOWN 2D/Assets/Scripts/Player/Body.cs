@@ -47,7 +47,7 @@ public class Body : MonoBehaviour {
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, head.transform.rotation, rotationSpeed * Time.deltaTime);
         }
-        Debug.Log(transform.rotation.z - head.transform.rotation.z);
+        //Debug.Log(transform.rotation.z - head.transform.rotation.z);
         
 
     }
