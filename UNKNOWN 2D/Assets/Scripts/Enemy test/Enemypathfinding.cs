@@ -12,13 +12,15 @@ public class Enemypathfinding : MonoBehaviour {
     private Rigidbody2D rb2d;
     private int currentWaypoint = 0;            // index of currentWaypoint
     private bool noPath = true;                 // true if no current path present
-    
+
+    private RaycastHit2D hit;
     #endregion
 
     #region PUBLIC
     public Transform target;                    // We will move towards this point
     public Path path;                           // Calculated path
     public GameObject[] waypoints;              // List with patrol points
+    public Transform Player;
 
     int waypointCounter = 0;                    // patrol point index within waypoints[]
 
@@ -33,6 +35,13 @@ public class Enemypathfinding : MonoBehaviour {
     public ForceMode2D FM;                      // modes can be FORCE or IMPULSE
 
     public Animator anim;
+
+    //za raycast
+    public GameObject player;                   //za raycast kasnije popravit
+    public float rayDistance = 2f;                  //duljina raya
+    public LayerMask hitLayers;                     //layeri koji mogu biti pogođeni
+    bool hasSeenOnce = true;
+    
     #endregion
 
     private void Start()
@@ -54,6 +63,7 @@ public class Enemypathfinding : MonoBehaviour {
             }
             else
             {
+                target = player.transform;
                 seeker.StartPath(transform.position, target.position, OnPathComplete);
             }
             //Debug.Log("NIG NIG");
@@ -61,6 +71,7 @@ public class Enemypathfinding : MonoBehaviour {
             yield return new WaitForSeconds(1f / updateTime);
         
         }
+        
     }
     // Find path to next waypoint, should only be called once per waypoint
     IEnumerator PatrolWaypointPath()          
@@ -80,6 +91,7 @@ public class Enemypathfinding : MonoBehaviour {
         }
     }
 
+    // za movement
     private void FixedUpdate()
     {
         if (see) // Move towards the player if you can see him
@@ -130,7 +142,59 @@ public class Enemypathfinding : MonoBehaviour {
             #endregion
         }
     }
+
+    // za raycast
+    private void Update()
+    {
+        //smijer od neprijatelja do playera
+        Vector2 raycastDir = (player.transform.position - transform.position).normalized;
+
+        //povlaci liniju u smijeru  (od,do,duljina,layer)
+        if (see)
+        {
+            hit = Physics2D.Raycast(transform.position, raycastDir, rayDistance*1.5f, hitLayers);
+            Debug.DrawRay(transform.position, raycastDir * (rayDistance*1.5f));                  //pokazuje liniju jer je inace nevidljiva
+        }
+        else
+        {
+            hit = Physics2D.Raycast(transform.position, raycastDir, rayDistance, hitLayers);
+            Debug.DrawRay(transform.position, raycastDir * rayDistance);
+        }
+
+        //ako pogodi neki colider u hitlayeru
+        if (hit.collider != null)
+        {
+            if (hit.collider.gameObject.CompareTag("Player"))       //ako je taj colider player
+            {
+                see = true;                                         //see postaje true i starta se updatepath
+                if (hasSeenOnce)                                    //ali samo jednom jer nije potreba vise puta ga zvat
+                {                                                   //jer u sebi ima while petlju koja racuna cijelo vrijeme
+                    StartCoroutine(UpdatePath());
+                    hasSeenOnce = false;
+                }
+            }
+            
+
+            Debug.Log(hit.collider.gameObject.tag);
+        }
+        else
+        {                                                           //nakon toga samo postavljamo sve natrag i da prati put kada nevidi vise playera
+            see = false;
+            if (!hasSeenOnce)
+            {
+                noPath = true;
+                hasSeenOnce = true;
+            }
+        }
+
+        //Debug.Log(hit.collider.gameObject.name);
+    }
+
+
+
+    #region collider triggers
     // When player is inside the trigger he is our target and we can see him
+    /*
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player")){
@@ -162,7 +226,8 @@ public class Enemypathfinding : MonoBehaviour {
             anim.SetBool("inRange", false);
         }
     }
-
+    */
+    #endregion
 
 
     /// <summary>
