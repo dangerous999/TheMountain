@@ -38,9 +38,9 @@ public class Enemypathfinding : MonoBehaviour {
 
     //za raycast
     public GameObject player;                   //za raycast kasnije popravit
-    public float rayDistance = 2f;                  //duljina raya
+    public float rayDistance = 2f, rayDistanceSeen;                  //duljina raya
     public LayerMask hitLayers;                     //layeri koji mogu biti pogođeni
-    bool hasSeenOnce = true;
+    public bool hasSeenOnce = true;
     
     #endregion
 
@@ -81,7 +81,7 @@ public class Enemypathfinding : MonoBehaviour {
         yield return new WaitForSeconds(2f / updateTime);
         StopCoroutine(PatrolWaypointPath());
     }
-    // No fucking clue sokol exblain this shit
+    // No fucking clue sokol exblain this shit----- ok its a path or someting does it matter what it is, it works
     public void OnPathComplete(Path p)
     {
         if (!p.error)
@@ -150,14 +150,14 @@ public class Enemypathfinding : MonoBehaviour {
         Vector2 raycastDir = (player.transform.position - transform.position).normalized;
 
         //kut između gledanja i raycastinga
-        float angle = Vector2.Angle(raycastDir, transform.up);
-        Debug.Log(angle);
+        
+        
 
         //povlaci liniju u smijeru  (od,do,duljina,layer)
         if (see)
         {
-            hit = Physics2D.Raycast(transform.position, raycastDir, rayDistance*1.5f, hitLayers);
-            Debug.DrawRay(transform.position, raycastDir * (rayDistance*1.5f));                  //pokazuje liniju jer je inace nevidljiva
+            hit = Physics2D.Raycast(transform.position, raycastDir, rayDistanceSeen, hitLayers);
+            Debug.DrawRay(transform.position, raycastDir * (rayDistanceSeen));                  //pokazuje liniju jer je inace nevidljiva
         }
         else
         {
@@ -168,13 +168,26 @@ public class Enemypathfinding : MonoBehaviour {
         //ako pogodi neki colider u hitlayeru
         if (hit.collider != null)
         {
-            if (hit.collider.gameObject.CompareTag("Player") && angle<=70f)       //ako je taj colider player
+            if (hit.collider.gameObject.CompareTag("Player"))       //ako je taj colider player
             {
-                see = true;                                         //see postaje true i starta se updatepath
-                if (hasSeenOnce)                                    //ali samo jednom jer nije potreba vise puta ga zvat
-                {                                                   //jer u sebi ima while petlju koja racuna cijelo vrijeme
-                    StartCoroutine(UpdatePath());
-                    hasSeenOnce = false;
+                float angle = Vector2.Angle(raycastDir, transform.up);
+                Debug.Log(angle);
+                if (angle <= 70f)
+                {
+                    see = true;                                         //see postaje true i starta se updatepath
+                    if (hasSeenOnce)                                    //ali samo jednom jer nije potreba vise puta ga zvat
+                    {                                                   //jer u sebi ima while petlju koja racuna cijelo vrijeme
+                        StartCoroutine(UpdatePath());
+                        hasSeenOnce = false;
+                    }
+                }
+            }else if (!hit.collider.gameObject.CompareTag("Player"))
+            {
+                see = false;
+                if (!hasSeenOnce)
+                {
+                    noPath = true;
+                    hasSeenOnce = true;
                 }
             }
             

@@ -318,9 +318,11 @@ MonoBehaviour:
   anim: {fileID: 0}
   player: {fileID: 1448146745}
   rayDistance: 15
+  rayDistanceSeen: 20
   hitLayers:
     serializedVersion: 2
     m_Bits: 768
+  hasSeenOnce: 1
 --- !u!114 &308449076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3126,9 +3128,11 @@ MonoBehaviour:
   anim: {fileID: 0}
   player: {fileID: 0}
   rayDistance: 2
+  rayDistanceSeen: 0
   hitLayers:
     serializedVersion: 2
     m_Bits: 0
+  hasSeenOnce: 1
 --- !u!1 &1862083756
 GameObject:
   m_ObjectHideFlags: 0
