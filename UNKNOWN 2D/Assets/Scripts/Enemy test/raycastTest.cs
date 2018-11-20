@@ -7,6 +7,7 @@ public class raycastTest : MonoBehaviour {
     public GameObject player;
     public float rayDistance = 2f;                  //duljina raya
     public LayerMask hitLayers;                     //layeri koji mogu biti pogođeni
+    public float angle = 30f;
     //public RaycastHit2D hit;
 
 
@@ -30,7 +31,12 @@ public class raycastTest : MonoBehaviour {
             
             Debug.Log(hit.collider.gameObject.tag);
         }
-        
+
         //Debug.Log(hit.collider.gameObject.name);
-	}
+        float angle = Vector2.Angle(raycastDir, transform.up);
+        Debug.Log(angle);
+
+    }
+
+
 }

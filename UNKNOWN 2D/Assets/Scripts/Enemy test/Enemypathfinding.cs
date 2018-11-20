@@ -149,6 +149,10 @@ public class Enemypathfinding : MonoBehaviour {
         //smijer od neprijatelja do playera
         Vector2 raycastDir = (player.transform.position - transform.position).normalized;
 
+        //kut između gledanja i raycastinga
+        float angle = Vector2.Angle(raycastDir, transform.up);
+        Debug.Log(angle);
+
         //povlaci liniju u smijeru  (od,do,duljina,layer)
         if (see)
         {
@@ -164,7 +168,7 @@ public class Enemypathfinding : MonoBehaviour {
         //ako pogodi neki colider u hitlayeru
         if (hit.collider != null)
         {
-            if (hit.collider.gameObject.CompareTag("Player"))       //ako je taj colider player
+            if (hit.collider.gameObject.CompareTag("Player") && angle<=70f)       //ako je taj colider player
             {
                 see = true;                                         //see postaje true i starta se updatepath
                 if (hasSeenOnce)                                    //ali samo jednom jer nije potreba vise puta ga zvat
